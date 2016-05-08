@@ -1,10 +1,10 @@
 CC:= gcc
 CFLAGS:= -I./include
 CXX:= g++
-CXXFLAGS:= -I./include --std=c++14
+CXXFLAGS:= -I./include --std=c++14 -fPIC
 LD:= g++
 LDFLAGS:= $(CXXFLAGS)
-OBJS:= main.o shell.o command.o util.o
+OBJS:= main.o shell.o command.o util.o signal_handler.o
 EXEC:= shell
 
 .PHONY: all run clean

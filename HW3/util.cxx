@@ -7,6 +7,8 @@
 
 #include <util.h>
 
+using Childish::Util;
+
 int Util::execvp(const std::string program, const std::vector<std::string> args) {
 	std::vector<char *> c_args;
 	std::transform(args.begin(), args.end(), std::back_inserter(c_args), [](const std::string &str) -> char * {

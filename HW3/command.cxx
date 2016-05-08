@@ -3,6 +3,8 @@
 #include <command.h>
 #include <util.h>
 
+using Childish::Command;
+
 bool Command::execute(const Command::Cmdlist cmds) {
 	return cmd_exit(cmds) || cmd_execute(cmds);
 }

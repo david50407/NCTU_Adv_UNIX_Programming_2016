@@ -5,6 +5,9 @@
 #include <string>
 #include <shell.h>
 #include <command.h>
+#include <signal_handler.hpp>
+
+using Childish::Shell;
 
 Shell::Shell() {
 }
