@@ -20,24 +20,26 @@ int Util::execvp(const std::string program, const std::vector<std::string> args)
 			});
 	c_args.push_back(NULL);
 
-	printf("execvp( %s", program.c_str());
+#ifdef DEBUG
+	fprintf(stderr, "execvp( %s", program.c_str());
 	for (auto i = 0; i < c_args.size(); ++i)
-		printf(", %s", c_args[i]);
-	printf(" )\n");
+		fprintf(stderr, ", %s", c_args[i]);
+	fprintf(stderr, " )\n");
+#endif
 
-	pid_t child_pid;
-	int status;
-	if ((child_pid = fork()) < 0) {
-		std::cerr << "** Cannot fork **";
-	} else if (child_pid == 0) { // child process
-		::execvp(program.c_str(), c_args.data()); // won't return
-		std::cerr << "** Cannot exec **";
-		::exit(errno);
-	} else { // parent
-		while (::waitpid(child_pid, &status, WNOHANG) != child_pid);
-	}
+	::execvp(program.c_str(), c_args.data()); // won't return
+	std::cerr << "\033[1;31m" << "Cannot exec: " << program.c_str() << "\033[m" << std::endl;
+	::exit(errno);
 
-	for (auto i = c_args.size() - 2; i != 0; --i)
-		delete[] c_args[i];
+	// for (auto i = c_args.size() - 2; i != 0; --i)
+	// 	delete[] c_args[i];
 	return 0;
+}
+
+bool Util::setpgid(pid_t pid, pid_t pgid) {
+	return ::setpgid(pid, pgid) == 0;
+}
+
+bool Util::pipe(int fd[2]) {
+	return ::pipe(fd) == 0;
 }

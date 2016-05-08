@@ -11,13 +11,32 @@
 using Childish::Shell;
 using Childish::Command;
 
-Shell::Shell() {
+Shell::Shell() :
+	pm() {
+
+	auto quit_handler = [=] (const int signal) {
+		std::cin.clear();
+		std::cout << std::endl;
+		show_prompt();
+		std::cout.flush();
+	};
+	SignalHandler::subscribe(SIGINT, quit_handler);
+	SignalHandler::subscribe(SIGQUIT, quit_handler);
 }
 
 void Shell::run() {
 	while (true) {
 		show_prompt();
 		const auto cmds = Command::parse_commands(read_command());
+		if (cmds.size() == 0)
+			continue;
+		if (cmds.front().get_args()[0] == "$__error") {
+			std::cout << "\033[1;31m" << cmds.front().get_args()[1] << "\033[m" << std::endl;
+			continue;
+		}
+		if (cmds.front().get_args()[0] == "exit")
+			::exit(0);
+		pm.execute_commands(cmds);
 	}
 }
 

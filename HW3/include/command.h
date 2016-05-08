@@ -13,21 +13,19 @@ namespace Childish {
 			using Chain = std::vector<class Command>;
 
 		private:
-			std::list<std::string> args;
+			std::vector<std::string> args;
 			std::string redirect_in;
 			std::string redirect_out;
 
 		public:
 			~Command();
+			std::vector<std::string> get_args() { return args; }
+			std::string get_redirect_in() { return redirect_in; }
+			std::string get_redirect_out() { return redirect_out; }
 			static Chain parse_commands(const std::string &);
-
-			static bool execute(const Cmdlist);
 		private:
 			Command();
 			Command(const std::initializer_list<std::string>);
-
-			static bool cmd_exit(const Cmdlist &); 
-			static bool cmd_execute(const Cmdlist &);
 	};
 }; // namespace Childish
 
