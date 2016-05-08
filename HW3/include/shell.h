@@ -1,5 +1,7 @@
 #include <string>
 
+#include <command.h>
+
 namespace Childish {
 	const int PATH_MAX = 4096;
 
@@ -11,6 +13,5 @@ namespace Childish {
 		private:
 			void show_prompt();
 			std::string read_command();
-			bool parse_command(std::string);
 	};
 }; // namespace Childish
