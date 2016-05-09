@@ -7,6 +7,7 @@
 #include <sstream>
 #include <string>
 
+#include <color.hpp>
 #include <shell.h>
 #include <command.h>
 #include <signal_handler.hpp>
@@ -41,7 +42,7 @@ void Shell::run() {
 void Shell::show_prompt() {
 	char pwd[PATH_MAX];
 	getcwd(pwd, sizeof(pwd));
-	printf("%s $ ", pwd);
+	std::cout << Color::Yellow << pwd << Color::Bright << " $ " << Color::Reset;
 }
 
 std::string Shell::read_command() {	
@@ -55,11 +56,20 @@ std::string Shell::read_command() {
 }
 
 bool Shell::builtin_command(const Command::Chain &chain) {
-	return builtin_command_exit(chain)
+	return builtin_command_$__error(chain)
+		|| builtin_command_exit(chain)
 		|| builtin_command_cd(chain)
 		|| builtin_command_export(chain)
 		|| builtin_command_unset(chain)
 		;
+}
+
+bool Shell::builtin_command_$__error(const Command::Chain &chain) {
+	if (chain.front().get_args()[0] != "$__error")
+		return false;
+
+	const auto &args = chain.front().get_args();
+	std::cerr << Color::Bright << Color::Red << "Error: " << args[1] << std::endl;
 }
 
 bool Shell::builtin_command_exit(const Command::Chain &chain) {
@@ -90,12 +100,12 @@ bool Shell::builtin_command_cd(const Command::Chain &chain) {
 
 	::realpath(target.c_str(), path);
 	if (::getcwd(now_path, PATH_MAX) == NULL) {
-		std::cerr << "\033[1;34mWarning: cd: Cannot get current working directory." << "\033[m" << std::endl;
+		std::cerr << Color::Bright << Color::Yellow << "Warning: cd: Cannot get current working directory." << Color::Reset << std::endl;
 		now_path[0] = '\0';
 	}
 
 	if (::chdir(path)) {
-		std::cerr << "\033[1;31mcd: No such directory: " << path << "\033[m" << std::endl;
+		std::cerr << Color::Bright << Color::Red << "cd: No such directory: " << path << Color::Reset << std::endl;
 		return true;
 	}
 
@@ -112,7 +122,7 @@ bool Shell::builtin_command_export(const Command::Chain &chain) {
 
 	const auto &args = chain.front().get_args();
 	if (args.size() == 1) {
-		std::cerr << "\033[1;31mUsage: export $name $value" << "\033[m" << std::endl;
+		std::cerr << Color::Bright << Color::Red << "Usage: export $name $value" << Color::Reset << std::endl;
 		return true;
 	}
 
@@ -142,7 +152,7 @@ bool Shell::builtin_command_unset(const Command::Chain &chain) {
 
 	const auto &args = chain.front().get_args();
 	if (args.size() == 1) {
-		std::cerr << "\033[1;31mUsage: unset $name" << "\033[m" << std::endl;
+		std::cerr << Color::Bright << Color::Red << "Usage: unset $name" << Color::Reset << std::endl;
 		return true;
 	}
 

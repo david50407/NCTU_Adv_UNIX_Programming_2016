@@ -15,6 +15,7 @@ namespace Childish {
 			void show_prompt();
 			std::string read_command();
 			bool builtin_command(const Command::Chain &);
+			bool builtin_command_$__error(const Command::Chain &);
 			bool builtin_command_exit(const Command::Chain &);
 			bool builtin_command_cd(const Command::Chain &);
 			bool builtin_command_export(const Command::Chain &);
