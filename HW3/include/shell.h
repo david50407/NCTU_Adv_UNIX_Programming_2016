@@ -17,6 +17,8 @@ namespace Childish {
 			bool builtin_command(const Command::Chain &);
 			bool builtin_command_exit(const Command::Chain &);
 			bool builtin_command_cd(const Command::Chain &);
+			bool builtin_command_export(const Command::Chain &);
+			bool builtin_command_unset(const Command::Chain &);
 
 		public:
 			ProcessManager pm;
