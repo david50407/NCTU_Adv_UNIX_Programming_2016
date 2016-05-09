@@ -122,7 +122,7 @@ bool Shell::builtin_command_export(const Command::Chain &chain) {
 
 	const auto &args = chain.front().get_args();
 	if (args.size() == 1) {
-		std::cerr << Color::Bright << Color::Red << "Usage: export $name $value" << Color::Reset << std::endl;
+		std::cerr << Color::Bright << Color::Red << "Usage: export $name [$value]" << Color::Reset << std::endl;
 		return true;
 	}
 
