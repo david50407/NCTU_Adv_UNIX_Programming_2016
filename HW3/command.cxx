@@ -1,9 +1,17 @@
+#include <glob.h>
 #include <string>
 #include <iostream>
 #include <initializer_list>
 
 #include <command.h>
 #include <util.h>
+
+#ifndef GLOB_TILDE
+	#define GLOB_TILDE 0
+#endif
+#ifndef GLOB_BRACE
+	#define GLOB_BRACE 0
+#endif
 
 namespace Childish {
 
@@ -98,7 +106,16 @@ namespace Childish {
 			}
 			if (now.redirect_in.size() > 0 || now.redirect_out.size() > 0)
 				goto syntax_error;
-			now.args.push_back(*it);
+
+			// expand * ?
+			::glob_t glob_result;
+			if ((*it)[0] == '"' || ::glob(it->c_str(), GLOB_TILDE | GLOB_BRACE, NULL, &glob_result) != 0) { // not match
+				now.args.push_back(*it);
+			} else {
+				for (int i = 0; i < glob_result.gl_pathc; ++i)
+					now.args.emplace_back(std::string(glob_result.gl_pathv[i]));
+			}
+			::globfree(&glob_result);
 		}
 
 		return chain;
