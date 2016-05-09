@@ -1,5 +1,8 @@
 #include <unistd.h>
+#include <pwd.h>
 #include <cstdio>
+#include <cstdlib>
+#include <climits>
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -30,13 +33,8 @@ void Shell::run() {
 		const auto cmds = Command::parse_commands(read_command());
 		if (cmds.size() == 0)
 			continue;
-		if (cmds.front().get_args()[0] == "$__error") {
-			std::cout << "\033[1;31m" << cmds.front().get_args()[1] << "\033[m" << std::endl;
-			continue;
-		}
-		if (cmds.front().get_args()[0] == "exit")
-			::exit(0);
-		pm.execute_commands(cmds);
+		if (!builtin_command(cmds))
+			pm.execute_commands(cmds);
 	}
 }
 
@@ -54,4 +52,52 @@ std::string Shell::read_command() {
 		cmd.append(line);
 	}
 	return cmd;
+}
+
+bool Shell::builtin_command(const Command::Chain &chain) {
+	return builtin_command_exit(chain) || builtin_command_cd(chain);
+}
+
+bool Shell::builtin_command_exit(const Command::Chain &chain) {
+	if (chain.front().get_args()[0] == "exit")
+		exit(0);
+	return false;
+}
+
+bool Shell::builtin_command_cd(const Command::Chain &chain) {
+	if (chain.front().get_args()[0] != "cd")
+		return false;
+
+	const auto &args = chain.front().get_args();
+	char path[PATH_MAX], now_path[$PATH_MAX];
+	std::string target = args[1];
+
+	if (args.size() == 1) { // home
+		char *home;
+		if ((home = getenv("HOME")) == NULL)
+			home = ::getpwuid(::getuid())->pw_dir;
+		target = std::string(home);
+	} else if (args[1] == "-") { // last location
+		char *old_pwd;
+		if ((old_pwd = ::getenv("OLDPWD")) == NULL) // no old pwd
+			return true;
+		target = std::string(old_pwd);
+	}
+
+	::realpath(target.c_str(), path);
+	if (::getcwd(now_path, PATH_MAX) == NULL) {
+		std::cerr << "\033[1;34mWarning: cd: Cannot get current working directory." << "\033[m" << std::endl;
+		now_path[0] = '\0';
+	}
+
+	if (::chdir(path)) {
+		std::cerr << "\033[1;31mcd: No such directory: " << path << "\033[m" << std::endl;
+		return true;
+	}
+
+	if (now_path[0] != '\0')
+		::setenv("OLDPWD", now_path, 1);
+	::setenv("PWD", path, 1);
+
+	return true;
 }

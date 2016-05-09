@@ -4,7 +4,7 @@
 #include <process_manager.h>
 
 namespace Childish {
-	const int PATH_MAX = 4096;
+	const int $PATH_MAX = 4096;
 
 	class Shell {
 		public:
@@ -14,6 +14,9 @@ namespace Childish {
 		private:
 			void show_prompt();
 			std::string read_command();
+			bool builtin_command(const Command::Chain &);
+			bool builtin_command_exit(const Command::Chain &);
+			bool builtin_command_cd(const Command::Chain &);
 
 		public:
 			ProcessManager pm;

@@ -22,7 +22,9 @@ namespace Childish {
 			std::vector<std::string> get_args() { return args; }
 			std::string get_redirect_in() { return redirect_in; }
 			std::string get_redirect_out() { return redirect_out; }
+			bool builtin_execute();
 			static Chain parse_commands(const std::string &);
+
 		private:
 			Command();
 			Command(const std::initializer_list<std::string>);
